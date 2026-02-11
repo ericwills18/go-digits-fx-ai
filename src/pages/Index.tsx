@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, TrendingUp, Shield, ChevronLeft, ChevronRight } from "lucide-react";
+import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, TrendingUp, Shield, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { StrategySelector } from "@/components/StrategySelector";
 import { streamChat, type Msg } from "@/lib/streamChat";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const WELCOME_MSG: Msg = {
@@ -40,6 +41,7 @@ const TICKER_ITEMS = [
 ];
 
 export default function Index() {
+  const { user, signOut } = useAuth();
   const [messages, setMessages] = useState<Msg[]>([WELCOME_MSG]);
   const [isLoading, setIsLoading] = useState(false);
   const [strategy, setStrategy] = useState<string | null>(null);
@@ -134,12 +136,19 @@ export default function Index() {
         <div className="p-3 border-t border-border">
           <div className="flex items-center gap-2 px-2">
             <div className="w-7 h-7 rounded-full bg-primary/30 flex items-center justify-center text-[10px] font-bold text-primary">
-              FX
+              {user?.email?.charAt(0).toUpperCase() || "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-foreground truncate">Trader</p>
+              <p className="text-xs text-foreground truncate">{user?.email?.split("@")[0] || "Trader"}</p>
               <p className="text-[10px] text-muted-foreground">GO-DIGITS Pro</p>
             </div>
+            <button
+              onClick={signOut}
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              title="Sign out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </aside>
