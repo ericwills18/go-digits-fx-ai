@@ -95,7 +95,7 @@ export default function Auth() {
             <div className="text-center mb-6">
               <Sparkles className="w-8 h-8 text-primary mx-auto mb-3" />
               <h3 className="text-lg font-bold text-foreground">
-                {isSignUp ? "Create your account" : "Welcome back"}
+                {isSignUp ? "Create your account" : "Welcome back trader"}
               </h3>
               <p className="text-xs text-muted-foreground mt-1">
                 {isSignUp ? "Start your trading journey" : "Sign in to continue"}
