@@ -52,13 +52,13 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   return (
-    <div className="border-t border-border bg-card p-3">
+    <div className="border-t border-border bg-card/80 backdrop-blur-sm p-3">
       {imagePreview && (
-        <div className="mb-2 relative inline-block">
-          <img src={imagePreview} alt="Upload" className="h-20 rounded-lg border border-border" />
+        <div className="mb-2 relative inline-block animate-fade-in-up">
+          <img src={imagePreview} alt="Upload" className="h-20 rounded-xl border border-border shadow-sm" />
           <button
             onClick={() => setImagePreview(null)}
-            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+            className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-sm hover:scale-110 transition-transform"
           >
             <X className="w-3 h-3" />
           </button>
@@ -68,7 +68,7 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         <button
           onClick={() => fileRef.current?.click()}
           disabled={disabled}
-          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors disabled:opacity-50"
+          className="p-2.5 rounded-xl text-muted-foreground hover:text-primary hover:bg-accent transition-all duration-200 disabled:opacity-50"
           title="Upload chart screenshot"
         >
           <Paperclip className="w-4 h-4" />
@@ -89,12 +89,12 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           placeholder="Ask about forex or upload a chart..."
           disabled={disabled}
           rows={1}
-          className="flex-1 bg-input border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none focus:ring-1 focus:ring-ring transition-all disabled:opacity-50"
+          className="flex-1 bg-input border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none focus:ring-2 focus:ring-ring/50 focus:border-primary/30 transition-all duration-200 disabled:opacity-50"
         />
         <button
           onClick={handleSend}
           disabled={disabled || (!input.trim() && !imagePreview)}
-          className="p-2.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity disabled:opacity-30"
+          className="send-pulse p-2.5 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-all duration-200 disabled:opacity-30 shadow-md"
         >
           <Send className="w-4 h-4" />
         </button>

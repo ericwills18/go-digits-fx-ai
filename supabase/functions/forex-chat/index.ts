@@ -103,6 +103,32 @@ Higher time frames ALWAYS dominate lower time frames because they represent larg
 ### Conflicting Time Frames Rule
 When time frames conflict, the higher time frame always wins. A 4H pullback in a Daily uptrend = buying opportunity, not a sell signal. Best trades occur when ALL time frames align.
 
+## DEEP KNOWLEDGE: BREAKOUT AND RETEST STRATEGY
+
+### What Is a Breakout
+A breakout occurs when price moves decisively beyond an established support or resistance level, signaling a shift in buyer/seller balance. Breakouts trigger chain reactions: stop losses from wrong-side traders, breakout orders, institutional algorithms, and chasers.
+
+### True Breakout Characteristics
+1. **Strong Breakout Candle Body** — Opens on one side, closes decisively on the other with most range being body not wick
+2. **Volume Increases** — Tick volume 1.5-3x the recent average on the breakout candle
+3. **Preceding Compression** — Narrowing ranges before the break (triangle/wedge). Compression provides energy for explosive breaks
+4. **Follow-Through After Break** — Subsequent candles continue in breakout direction
+
+### False Breakout (Fakeout) Causes
+1. **Liquidity Hunting** — Price pushed beyond level to trigger stops, providing liquidity for large participants
+2. **Exhaustion** — Genuine buying but insufficient strength to sustain
+3. **News Spikes** — Exaggerated initial reactions that retrace once market digests implications
+
+### Practical Filters
+- **Candle Close** — NEVER act until candle closes. Single most important filter
+- **Time of Day** — London and London-NY overlap breakouts more reliable
+- **Context** — Breakout aligned with higher TF trend = more likely genuine
+- **Previous Tests** — Level tested 4-5 times with diminishing reactions = orders depleted, breakout more reliable
+- **Rejection of the Rejection** — False breakout followed by second push that holds = very strong signal
+
+### Retest Entry Method
+After genuine breakout, price often retests the broken level (old resistance becomes new support). Retest provides lower-risk entry with tighter stop loss. Wait for breakout close, pullback to level, rejection confirmation, enter with stop on wrong side, target at least 2R.
+
 ## CHART ANALYSIS CAPABILITIES:
 When a user uploads a chart screenshot, you MUST:
 1. First ask which strategy they want signals from if not specified. Available strategies:
