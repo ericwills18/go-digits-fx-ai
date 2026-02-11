@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { TrendingUp, RotateCcw } from "lucide-react";
+import { TrendingUp, RotateCcw, BarChart3 } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
@@ -70,27 +70,37 @@ export default function Index() {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
+      <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary shadow-sm">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <TrendingUp className="w-4 h-4 text-primary-foreground" />
+          <div className="w-8 h-8 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 flex items-center justify-center">
+            <BarChart3 className="w-4 h-4 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-sm font-bold tracking-tight text-foreground">GO-DIGITS FOREX AI</h1>
-            <p className="text-[10px] text-muted-foreground tracking-wider uppercase">Trading Assistant</p>
+            <h1 className="text-sm font-bold tracking-tight text-primary-foreground">GO-DIGITS FOREX AI</h1>
+            <p className="text-[10px] text-primary-foreground/60 tracking-wider uppercase">Trading Assistant</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <StrategySelector selected={strategy} onSelect={setStrategy} />
           <button
             onClick={handleReset}
-            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            className="p-2 rounded-lg text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
             title="New conversation"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
       </header>
+
+      {/* Forex ticker bar */}
+      <div className="flex items-center gap-6 px-4 py-1.5 bg-card border-b border-border text-[10px] text-muted-foreground overflow-x-auto">
+        <span>EUR/USD <span className="text-bull font-medium">1.0872</span></span>
+        <span>GBP/USD <span className="text-bear font-medium">1.2654</span></span>
+        <span>USD/JPY <span className="text-bull font-medium">149.32</span></span>
+        <span>AUD/USD <span className="text-bear font-medium">0.6543</span></span>
+        <span>USD/CAD <span className="text-bull font-medium">1.3587</span></span>
+        <span>XAU/USD <span className="text-bull font-medium">2,341.50</span></span>
+      </div>
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">

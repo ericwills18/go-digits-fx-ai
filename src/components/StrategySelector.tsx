@@ -26,7 +26,7 @@ export function StrategySelector({ selected, onSelect }: StrategySelectorProps) 
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-secondary text-xs text-secondary-foreground hover:bg-accent transition-colors outline-none">
+      <DropdownMenuTrigger className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-xs text-primary-foreground hover:bg-primary-foreground/15 transition-colors outline-none">
         <span>{current ? `${current.icon} ${current.label}` : "Select Strategy"}</span>
         <ChevronDown className="w-3 h-3" />
       </DropdownMenuTrigger>
