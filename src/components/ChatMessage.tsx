@@ -27,10 +27,10 @@ export function ChatMessage({ role, content, image }: ChatMessageProps) {
 
   return (
     <div className="flex gap-3 mb-4">
-      <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+      <div className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
         <BarChart3 className="w-4 h-4 text-primary" />
       </div>
-      <div className="max-w-[85%] glass-card px-4 py-3 rounded-2xl rounded-bl-sm shadow-sm">
+      <div className="max-w-[85%] glass-card px-4 py-3 rounded-2xl rounded-bl-sm">
         <div className="chat-prose text-foreground">
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
