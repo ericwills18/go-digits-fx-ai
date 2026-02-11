@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { TrendingUp, RotateCcw, BarChart3 } from "lucide-react";
+import { TrendingUp, RotateCcw, BarChart3, Sparkles } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
@@ -20,6 +20,17 @@ I'm your professional forex trading assistant. I can help you with:
 
 **To get started:** Ask me anything about forex, or upload a chart screenshot for analysis. Select a strategy above for targeted signals.`,
 };
+
+const TICKER_ITEMS = [
+  { pair: "EUR/USD", price: "1.0872", bull: true },
+  { pair: "GBP/USD", price: "1.2654", bull: false },
+  { pair: "USD/JPY", price: "149.32", bull: true },
+  { pair: "AUD/USD", price: "0.6543", bull: false },
+  { pair: "USD/CAD", price: "1.3587", bull: true },
+  { pair: "XAU/USD", price: "2,341.50", bull: true },
+  { pair: "EUR/GBP", price: "0.8587", bull: false },
+  { pair: "NZD/USD", price: "0.6123", bull: true },
+];
 
 export default function Index() {
   const [messages, setMessages] = useState<Msg[]>([WELCOME_MSG]);
@@ -70,21 +81,25 @@ export default function Index() {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary shadow-sm">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary-foreground/10 border border-primary-foreground/20 flex items-center justify-center">
-            <BarChart3 className="w-4 h-4 text-primary-foreground" />
+      <header className="header-gradient flex items-center justify-between px-5 py-3.5 shadow-lg relative overflow-hidden">
+        <div className="absolute inset-0 shimmer pointer-events-none" />
+        <div className="flex items-center gap-3 relative z-10">
+          <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm">
+            <BarChart3 className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-sm font-bold tracking-tight text-primary-foreground">GO-DIGITS FOREX AI</h1>
-            <p className="text-[10px] text-primary-foreground/60 tracking-wider uppercase">Trading Assistant</p>
+            <h1 className="text-sm font-bold tracking-tight text-primary-foreground flex items-center gap-1.5">
+              GO-DIGITS FOREX AI
+              <Sparkles className="w-3.5 h-3.5 text-primary-foreground/60" />
+            </h1>
+            <p className="text-[10px] text-primary-foreground/50 tracking-widest uppercase">Professional Trading Assistant</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 relative z-10">
           <StrategySelector selected={strategy} onSelect={setStrategy} />
           <button
             onClick={handleReset}
-            className="p-2 rounded-lg text-primary-foreground/60 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
+            className="p-2 rounded-lg text-primary-foreground/50 hover:text-primary-foreground hover:bg-white/10 transition-all duration-200 hover:rotate-[-90deg]"
             title="New conversation"
           >
             <RotateCcw className="w-4 h-4" />
@@ -93,20 +108,29 @@ export default function Index() {
       </header>
 
       {/* Forex ticker bar */}
-      <div className="flex items-center gap-6 px-4 py-1.5 bg-card border-b border-border text-[10px] text-muted-foreground overflow-x-auto">
-        <span>EUR/USD <span className="text-bull font-medium">1.0872</span></span>
-        <span>GBP/USD <span className="text-bear font-medium">1.2654</span></span>
-        <span>USD/JPY <span className="text-bull font-medium">149.32</span></span>
-        <span>AUD/USD <span className="text-bear font-medium">0.6543</span></span>
-        <span>USD/CAD <span className="text-bull font-medium">1.3587</span></span>
-        <span>XAU/USD <span className="text-bull font-medium">2,341.50</span></span>
+      <div className="relative overflow-hidden bg-card border-b border-border">
+        <div className="ticker-scroll flex items-center gap-8 px-4 py-2 text-[11px] text-muted-foreground whitespace-nowrap w-max">
+          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+            <span key={i} className="flex items-center gap-1.5 hover:scale-105 transition-transform cursor-default">
+              <span className="font-medium text-foreground/70">{item.pair}</span>
+              <span className={`font-semibold ${item.bull ? 'text-bull' : 'text-bear'}`}>
+                {item.price}
+              </span>
+              <span className={`text-[9px] ${item.bull ? 'text-bull' : 'text-bear'}`}>
+                {item.bull ? '▲' : '▼'}
+              </span>
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
-        <div className="max-w-3xl mx-auto">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="max-w-3xl mx-auto space-y-1">
           {messages.map((msg, i) => (
-            <ChatMessage key={i} role={msg.role} content={msg.content} image={msg.image} />
+            <div key={i} className="animate-fade-in-up" style={{ animationDelay: `${Math.min(i * 50, 200)}ms` }}>
+              <ChatMessage role={msg.role} content={msg.content} image={msg.image} />
+            </div>
           ))}
           {isLoading && messages[messages.length - 1]?.role === "user" && <TypingIndicator />}
         </div>

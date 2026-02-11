@@ -26,16 +26,16 @@ export function StrategySelector({ selected, onSelect }: StrategySelectorProps) 
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-xs text-primary-foreground hover:bg-primary-foreground/15 transition-colors outline-none">
+      <DropdownMenuTrigger className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 bg-white/10 text-xs text-primary-foreground hover:bg-white/20 transition-all duration-200 outline-none backdrop-blur-sm">
         <span>{current ? `${current.icon} ${current.label}` : "Select Strategy"}</span>
         <ChevronDown className="w-3 h-3" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="bg-card border-border">
+      <DropdownMenuContent align="end" className="bg-card border-border shadow-lg">
         {STRATEGIES.map((s) => (
           <DropdownMenuItem
             key={s.id}
             onClick={() => onSelect(s.id)}
-            className={`text-xs cursor-pointer ${selected === s.id ? "bg-accent" : ""}`}
+            className={`text-xs cursor-pointer transition-colors duration-150 ${selected === s.id ? "bg-accent font-medium" : ""}`}
           >
             <span className="mr-2">{s.icon}</span>
             {s.label}
