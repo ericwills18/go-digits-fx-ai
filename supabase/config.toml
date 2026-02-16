@@ -2,3 +2,6 @@ project_id = "kcgcoxjjfkiehdltvjiy"
 
 [functions.forex-chat]
 verify_jwt = false
+
+[functions.generate-chart]
+verify_jwt = false
