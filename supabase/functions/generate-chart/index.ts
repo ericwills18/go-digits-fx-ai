@@ -10,24 +10,24 @@ serve(async (req) => {
 
   try {
     const { prompt } = await req.json();
-    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
-    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Groq Llama doesn't support image generation, so we return a text-based chart description
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${GROQ_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "google/gemini-2.5-flash-image",
         messages: [
           {
             role: "user",
-            content: `You are a forex chart analyst. Describe in detail what a professional trading chart would look like for this setup. Include key price levels, candle patterns, and annotations. ${prompt}`,
+            content: `Generate a professional forex trading chart illustration: ${prompt}. Make it look like a real trading platform chart with candlesticks, price levels, and annotations. Use dark background with green/red candles.`,
           },
         ],
+        modalities: ["image", "text"],
       }),
     });
 
@@ -51,9 +51,9 @@ serve(async (req) => {
 
     const data = await response.json();
     const text = data.choices?.[0]?.message?.content || "";
+    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
 
-    // Groq/Llama doesn't generate images, return text description only
-    return new Response(JSON.stringify({ imageUrl: null, text }), {
+    return new Response(JSON.stringify({ imageUrl, text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

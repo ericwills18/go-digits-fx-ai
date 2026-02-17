@@ -52,6 +52,51 @@
     --sidebar-border: 220 30% 25%;
     --sidebar-ring: 220 70% 55%;
   }
+
+  .dark {
+    --background: 220 30% 8%;
+    --foreground: 220 15% 90%;
+
+    --card: 220 30% 12%;
+    --card-foreground: 220 15% 90%;
+
+    --popover: 220 30% 12%;
+    --popover-foreground: 220 15% 90%;
+
+    --primary: 220 70% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 25% 18%;
+    --secondary-foreground: 220 15% 80%;
+
+    --muted: 220 20% 16%;
+    --muted-foreground: 220 15% 55%;
+
+    --accent: 220 30% 20%;
+    --accent-foreground: 220 70% 70%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 20% 20%;
+    --input: 220 20% 18%;
+    --ring: 220 70% 55%;
+
+    --navy: 220 50% 14%;
+    --navy-light: 220 35% 22%;
+    --navy-dark: 220 55% 8%;
+
+    --glow: 220 80% 60%;
+
+    --sidebar-background: 220 50% 10%;
+    --sidebar-foreground: 220 15% 80%;
+    --sidebar-primary: 220 70% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 40% 16%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 220 30% 18%;
+    --sidebar-ring: 220 70% 55%;
+  }
 }
 
 @layer base {
@@ -75,6 +120,9 @@
 ::-webkit-scrollbar-thumb {
   background: hsl(220 15% 78%);
   border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(220 15% 30%);
 }
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(220 15% 65%);
@@ -133,10 +181,14 @@
   border: 1px solid hsla(220, 15%, 87%, 0.7);
   backdrop-filter: blur(12px);
 }
+.dark .glass-card {
+  background: hsla(220, 30%, 12%, 0.85);
+  border: 1px solid hsla(220, 20%, 25%, 0.7);
+}
 
 /* Sidebar glass */
 .sidebar-glass {
-  background: hsl(220 50% 16%);
+  background: hsl(var(--sidebar-background));
 }
 
 /* Fade in animation */
@@ -150,8 +202,8 @@
 
 /* Send button pulse */
 @keyframes send-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 hsla(220, 70%, 45%, 0.4); }
-  50% { box-shadow: 0 0 0 6px hsla(220, 70%, 45%, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 hsla(var(--primary), 0.4); }
+  50% { box-shadow: 0 0 0 6px hsla(var(--primary), 0); }
 }
 .send-pulse:not(:disabled):hover {
   animation: send-pulse 1.5s ease infinite;
@@ -159,6 +211,13 @@
 
 /* Sidebar active link */
 .sidebar-link-active {
-  background: hsla(220, 70%, 55%, 0.15);
-  color: hsl(220, 70%, 70%);
+  background: hsla(var(--sidebar-primary), 0.15);
+  color: hsl(var(--sidebar-primary));
+}
+
+/* Wallpaper background */
+.wallpaper-bg {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
