@@ -100,28 +100,17 @@ serve(async (req) => {
 
   try {
     const { messages, strategy } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
 
-    const systemMessages: any[] = [
-      { role: "system", content: FOREX_SYSTEM_PROMPT }
-    ];
-
-    if (strategy) {
-      systemMessages.push({
-        role: "system",
-        content: `The user has selected the "${strategy}" strategy. Apply this strategy when analyzing charts.`
-      });
-    }
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "llama-3.3-70b-versatile",
         messages: [...systemMessages, ...messages],
         stream: true,
       }),
