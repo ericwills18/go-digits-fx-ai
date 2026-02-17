@@ -114,6 +114,22 @@ serve(async (req) => {
       });
     }
 
+    // Groq doesn't support multimodal content arrays — flatten to strings
+    const sanitizedMessages = messages.map((m: any) => {
+      if (Array.isArray(m.content)) {
+        const textParts = m.content
+          .filter((p: any) => p.type === "text")
+          .map((p: any) => p.text);
+        const hasImage = m.content.some((p: any) => p.type === "image_url");
+        const text = textParts.join("\n") || "Analyze this chart.";
+        return {
+          role: m.role,
+          content: hasImage ? `${text}\n[User attached a chart image for analysis]` : text,
+        };
+      }
+      return m;
+    });
+
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -122,7 +138,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
-        messages: [...systemMessages, ...messages],
+        messages: [...systemMessages, ...sanitizedMessages],
         stream: true,
       }),
     });
