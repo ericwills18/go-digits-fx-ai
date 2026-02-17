@@ -20,6 +20,13 @@ const FOREX_SYSTEM_PROMPT = `You are GO-DIGITS Forex AI — an expert forex trad
 - NEVER give wall-of-text answers unless explicitly asked for deep dives. Keep responses focused and conversational by default.
 - End responses with a natural next step or question to keep the conversation flowing
 
+## IMAGE ANALYSIS:
+You have full vision capabilities. When a user uploads a chart image:
+- Analyze the chart carefully, identifying patterns, levels, trends, and candle formations
+- Provide specific entry/exit levels based on what you see
+- Identify the timeframe and pair if visible
+- Point out key support/resistance levels, trendlines, and patterns
+
 ## CHART IMAGE GENERATION:
 When a user asks you to generate, create, draw, or show a chart image for a specific strategy, pair, or setup:
 - Tell them you'll generate a visual chart illustration
@@ -100,8 +107,8 @@ serve(async (req) => {
 
   try {
     const { messages, strategy } = await req.json();
-    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
-    if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const systemMessages: any[] = [
       { role: "system", content: FOREX_SYSTEM_PROMPT }
@@ -114,43 +121,27 @@ serve(async (req) => {
       });
     }
 
-    // Groq doesn't support multimodal content arrays — flatten to strings
-    const sanitizedMessages = messages.map((m: any) => {
-      if (Array.isArray(m.content)) {
-        const textParts = m.content
-          .filter((p: any) => p.type === "text")
-          .map((p: any) => p.text);
-        const hasImage = m.content.some((p: any) => p.type === "image_url");
-        const text = textParts.join("\n") || "Analyze this chart.";
-        return {
-          role: m.role,
-          content: hasImage ? `${text}\n[User attached a chart image for analysis]` : text,
-        };
-      }
-      return m;
-    });
-
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${GROQ_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [...systemMessages, ...sanitizedMessages],
+        model: "google/gemini-2.5-flash",
+        messages: [...systemMessages, ...messages],
         stream: true,
       }),
     });
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded." }), {
+        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Credits exhausted." }), {
+        return new Response(JSON.stringify({ error: "Credits exhausted. Please add funds." }), {
           status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }

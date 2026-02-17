@@ -1,5 +1,5 @@
 import { useState, useRef, type KeyboardEvent } from "react";
-import { Send, Paperclip, X, Settings2 } from "lucide-react";
+import { Send, Paperclip, X, Settings2, Mic, MicOff } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (message: string, image?: string) => void;
@@ -9,8 +9,10 @@ interface ChatInputProps {
 export function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [input, setInput] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,6 +53,45 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     }
   };
 
+  const toggleVoice = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: any) => {
+      let transcript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setInput(transcript);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+  };
+
   return (
     <div className="glass-card rounded-2xl p-3">
       {imagePreview && (
@@ -77,6 +118,18 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none py-2 px-1 disabled:opacity-50"
         />
         <div className="flex items-center gap-1">
+          <button
+            onClick={toggleVoice}
+            disabled={disabled}
+            className={`p-2 rounded-lg transition-all duration-200 disabled:opacity-50 ${
+              isListening
+                ? "bg-destructive text-destructive-foreground animate-pulse"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+            title={isListening ? "Stop listening" : "Voice input"}
+          >
+            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          </button>
           <button
             onClick={() => fileRef.current?.click()}
             disabled={disabled}
@@ -110,9 +163,15 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
           <Paperclip className="w-3 h-3" />
           Attach chart
         </button>
-        <button className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-          <Settings2 className="w-3 h-3" />
-          Adjustments
+        <button
+          onClick={toggleVoice}
+          disabled={disabled}
+          className={`flex items-center gap-1.5 text-[11px] transition-colors ${
+            isListening ? "text-destructive" : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Mic className="w-3 h-3" />
+          {isListening ? "Listening..." : "Voice input"}
         </button>
       </div>
     </div>
