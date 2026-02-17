@@ -103,6 +103,17 @@ serve(async (req) => {
     const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
     if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
 
+    const systemMessages: any[] = [
+      { role: "system", content: FOREX_SYSTEM_PROMPT }
+    ];
+
+    if (strategy) {
+      systemMessages.push({
+        role: "system",
+        content: `The user has selected the "${strategy}" strategy. Apply this strategy when analyzing charts.`
+      });
+    }
+
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
