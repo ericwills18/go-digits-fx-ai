@@ -13,17 +13,26 @@ serve(async (req) => {
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
+    const enhancedPrompt = `Generate a PHOTOREALISTIC professional forex trading chart that looks exactly like a screenshot from TradingView or MetaTrader 5. Requirements:
+- Dark navy/black background with grid lines
+- Professional candlestick chart with proper OHLC candles (green/white for bullish, red for bearish)
+- Proper price axis on the right side with realistic forex price numbers
+- Time axis at the bottom
+- Include volume bars at the bottom of the chart
+- Add any relevant indicators (EMAs, RSI, MACD) as overlays or subplots
+- Annotations with arrows, horizontal support/resistance lines, entry/exit markers
+- The chart should look EXACTLY like a real trading platform screenshot, not a cartoon or illustration
+- Include the pair name and timeframe in the top-left corner
+
+Specific chart to generate: ${prompt}`;
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Generate a professional forex trading chart illustration: ${prompt}. Make it look like a real trading platform chart with candlesticks, price levels, and annotations. Use dark background with green/red candles.`
-            }]
-          }],
+          contents: [{ parts: [{ text: enhancedPrompt }] }],
           generationConfig: {
             responseModalities: ["TEXT", "IMAGE"],
           },
@@ -48,7 +57,6 @@ serve(async (req) => {
     let imageUrl = null;
     let text = "";
 
-    // Extract from Gemini response format
     const parts = data.candidates?.[0]?.content?.parts || [];
     for (const part of parts) {
       if (part.text) text += part.text;
