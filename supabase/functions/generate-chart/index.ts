@@ -10,48 +10,52 @@ serve(async (req) => {
 
   try {
     const { prompt } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [
-          {
-            role: "user",
-            content: `Generate a professional forex trading chart illustration: ${prompt}. Make it look like a real trading platform chart with candlesticks, price levels, and annotations. Use dark background with green/red candles.`,
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Generate a professional forex trading chart illustration: ${prompt}. Make it look like a real trading platform chart with candlesticks, price levels, and annotations. Use dark background with green/red candles.`
+            }]
+          }],
+          generationConfig: {
+            responseModalities: ["TEXT", "IMAGE"],
           },
-        ],
-        modalities: ["image", "text"],
-      }),
-    });
+        }),
+      }
+    );
 
     if (!response.ok) {
+      const t = await response.text();
+      console.error("Gemini image error:", response.status, t);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded." }), {
           status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Credits exhausted." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("Image generation error:", response.status, t);
       return new Response(JSON.stringify({ error: "Failed to generate chart image" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || "";
-    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
+    let imageUrl = null;
+    let text = "";
+
+    // Extract from Gemini response format
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    for (const part of parts) {
+      if (part.text) text += part.text;
+      if (part.inlineData) {
+        imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+      }
+    }
 
     return new Response(JSON.stringify({ imageUrl, text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
