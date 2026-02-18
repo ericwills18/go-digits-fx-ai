@@ -1,6 +1,6 @@
 import ReactMarkdown from "react-markdown";
-import { BarChart3, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { BarChart3, Loader2, Volume2, VolumeX } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
@@ -13,6 +13,8 @@ const CHART_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-ch
 export function ChatMessage({ role, content, image }: ChatMessageProps) {
   const [chartImages, setChartImages] = useState<Record<string, string>>({});
   const [loadingCharts, setLoadingCharts] = useState<Set<string>>(new Set());
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   // Detect [GENERATE_CHART: ...] patterns and generate images
   useEffect(() => {
@@ -51,8 +53,45 @@ export function ChatMessage({ role, content, image }: ChatMessageProps) {
     });
   }, [content, role]);
 
-  // Replace [GENERATE_CHART: ...] with placeholder text for rendering
   const cleanContent = content.replace(/\[GENERATE_CHART:\s*(.+?)\]/g, "");
+
+  const toggleSpeak = () => {
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    // Strip markdown for speech
+    const textOnly = cleanContent
+      .replace(/[#*_`~\[\]()>|\\-]/g, "")
+      .replace(/\n+/g, ". ")
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(textOnly);
+    utterance.rate = 0.9;
+    utterance.pitch = 0.95;
+    utterance.volume = 1;
+
+    // Try to find a voice that sounds natural — prefer English voices
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(
+      (v) => v.lang.startsWith("en") && v.name.toLowerCase().includes("female")
+    ) || voices.find(
+      (v) => v.lang.startsWith("en-") && v.localService
+    ) || voices.find(
+      (v) => v.lang.startsWith("en")
+    );
+    if (preferred) utterance.voice = preferred;
+    utterance.lang = "en-NG"; // Nigerian English accent
+
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+    setIsSpeaking(true);
+  };
 
   if (role === "user") {
     return (
@@ -71,7 +110,6 @@ export function ChatMessage({ role, content, image }: ChatMessageProps) {
     );
   }
 
-  // Extract chart prompts for display
   const chartPrompts: string[] = [];
   const regex = /\[GENERATE_CHART:\s*(.+?)\]/g;
   let m;
@@ -88,7 +126,6 @@ export function ChatMessage({ role, content, image }: ChatMessageProps) {
         <div className="chat-prose text-foreground">
           <ReactMarkdown>{cleanContent}</ReactMarkdown>
         </div>
-        {/* Render generated chart images */}
         {chartPrompts.map((prompt, i) => (
           <div key={i} className="mt-3">
             {loadingCharts.has(prompt) ? (
@@ -105,6 +142,21 @@ export function ChatMessage({ role, content, image }: ChatMessageProps) {
             ) : null}
           </div>
         ))}
+        {/* Voice output button */}
+        <div className="mt-2 flex justify-end">
+          <button
+            onClick={toggleSpeak}
+            className={`p-1.5 rounded-lg transition-all text-xs flex items-center gap-1 ${
+              isSpeaking
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+            title={isSpeaking ? "Stop speaking" : "Read aloud"}
+          >
+            {isSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            <span className="text-[10px]">{isSpeaking ? "Stop" : "Listen"}</span>
+          </button>
+        </div>
       </div>
     </div>
   );

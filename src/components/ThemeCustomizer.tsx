@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Palette, Sun, Moon, X, Image, Check } from "lucide-react";
+import { useState, useRef } from "react";
+import { Palette, Sun, Moon, X, Image, Check, Upload } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +48,21 @@ export function ThemeCustomizer({
   currentTheme,
   currentWallpaper,
 }: ThemeCustomizerProps) {
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleCustomWallpaper = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      onWallpaperChange(dataUrl);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -74,7 +89,6 @@ export function ThemeCustomizer({
             </TabsList>
           </div>
 
-          {/* Colors Tab */}
           <TabsContent value="colors" className="p-3 pt-2 m-0">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Accent Color</p>
             <div className="grid grid-cols-4 gap-2">
@@ -97,10 +111,24 @@ export function ThemeCustomizer({
             </div>
           </TabsContent>
 
-          {/* Wallpaper Tab */}
           <TabsContent value="wallpaper" className="p-3 pt-2 m-0">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Chart Wallpaper</p>
             <div className="grid grid-cols-2 gap-2 max-h-[240px] overflow-y-auto pr-1">
+              {/* Custom upload button */}
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="relative rounded-lg border border-dashed border-primary/40 overflow-hidden h-[70px] transition-all group hover:border-primary flex flex-col items-center justify-center gap-1 bg-secondary/50"
+              >
+                <Upload className="w-4 h-4 text-primary" />
+                <span className="text-[9px] text-muted-foreground font-medium">Upload Custom</span>
+              </button>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                onChange={handleCustomWallpaper}
+                className="hidden"
+              />
               {WALLPAPERS.map((wp) => (
                 <button
                   key={wp.id}
@@ -129,7 +157,6 @@ export function ThemeCustomizer({
             </div>
           </TabsContent>
 
-          {/* Mode Tab */}
           <TabsContent value="mode" className="p-3 pt-2 m-0">
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Appearance</p>
             <div className="grid grid-cols-2 gap-2">
