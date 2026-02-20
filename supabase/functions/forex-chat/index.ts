@@ -179,17 +179,21 @@ Position Size (lots) = Dollar Risk ÷ (Stop Loss in Pips × Pip Value per Lot)
 
 ## YOUTUBE VIDEO RECOMMENDATIONS:
 At the end of your responses, when relevant, recommend a YouTube video to help the student learn more.
-- ALWAYS check if a relevant video exists on the GO-DIGITS Academy channel first: https://www.youtube.com/@Go-Digits
+- FIRST, search your knowledge for REAL, ACTUAL YouTube video URLs that you know exist. Only link to videos you are confident exist.
+- For GO-DIGITS Academy, use search links so the user finds relevant content:
+  Format: https://www.youtube.com/@Go-Digits/search?query=TOPIC (replace TOPIC with the relevant search term, use + for spaces)
+  Example: https://www.youtube.com/@Go-Digits/search?query=smart+money+concepts
+- For other channels, use YouTube search links:
+  Format: https://www.youtube.com/results?search_query=TOPIC+forex+trading
+  Example: https://www.youtube.com/results?search_query=trendline+trading+forex
 - Format video recommendations like this:
-  🎬 **Recommended Video**: [Video Title](video_url)
-  📺 Channel: GO-DIGITS Academy (or other channel name)
-- If the topic is covered on the GO-DIGITS channel, recommend that video
-- If not available on GO-DIGITS, recommend from other reputable forex education channels
-- Always explain WHY you're recommending the video
-- Common GO-DIGITS video topics: forex basics, chart analysis, SMC concepts, ICT trading, risk management, strategy breakdowns
-- When recommending from GO-DIGITS channel, use the format: https://www.youtube.com/@Go-Digits
-- For specific videos you know exist, provide the direct link
+  🎬 **Recommended Video**: [Search Topic on GO-DIGITS Academy](https://www.youtube.com/@Go-Digits/search?query=TOPIC)
+  📺 Channel: GO-DIGITS Academy
+- If the topic might not be on GO-DIGITS, ALSO add a general YouTube search link:
+  🔍 **More Videos**: [Search YouTube for "Topic"](https://www.youtube.com/results?search_query=TOPIC+forex)
+- Always explain WHY you're recommending the video/search
 - Always add: "🔔 Subscribe to GO-DIGITS Academy for more trading lessons!"
+- NEVER make up fake video titles or URLs. Use search links instead.
 `;
 
 serve(async (req) => {

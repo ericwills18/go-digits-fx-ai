@@ -10,8 +10,8 @@ serve(async (req) => {
 
   try {
     const { prompt } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const IMAGE_GEN_API_KEY = Deno.env.get("IMAGE_GEN_API_KEY");
+    if (!IMAGE_GEN_API_KEY) throw new Error("IMAGE_GEN_API_KEY is not configured");
 
     const enhancedPrompt = `Generate a PHOTOREALISTIC professional forex trading chart that looks exactly like a screenshot from TradingView or MetaTrader 5. Requirements:
 - Dark navy/black background with grid lines
@@ -26,40 +26,72 @@ serve(async (req) => {
 
 Specific chart to generate: ${prompt}`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [{ role: "user", content: enhancedPrompt }],
-        modalities: ["image", "text"],
-      }),
-    });
+    // Try Gemini image generation with the dedicated API key
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${IMAGE_GEN_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: enhancedPrompt }] }],
+          generationConfig: {
+            responseModalities: ["TEXT", "IMAGE"],
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
       const t = await response.text();
-      console.error("Image generation error:", response.status, t);
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      console.error("Gemini image API error:", response.status, t);
+
+      // Fallback: try Imagen model
+      const imagenResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${IMAGE_GEN_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            instances: [{ prompt: enhancedPrompt }],
+            parameters: { sampleCount: 1, aspectRatio: "16:9" },
+          }),
+        }
+      );
+
+      if (!imagenResponse.ok) {
+        const t2 = await imagenResponse.text();
+        console.error("Imagen API error:", imagenResponse.status, t2);
+        return new Response(JSON.stringify({ error: "Failed to generate chart image" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Usage limit reached. Please add credits." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+
+      const imagenData = await imagenResponse.json();
+      const b64 = imagenData.predictions?.[0]?.bytesBase64Encoded;
+      if (b64) {
+        const imageUrl = `data:image/png;base64,${b64}`;
+        return new Response(JSON.stringify({ imageUrl, text: "" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      return new Response(JSON.stringify({ error: "Failed to generate chart image" }), {
+
+      return new Response(JSON.stringify({ error: "No image generated" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const data = await response.json();
-    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url || null;
-    const text = data.choices?.[0]?.message?.content || "";
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    let imageUrl = null;
+    let text = "";
+
+    for (const part of parts) {
+      if (part.inlineData) {
+        imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+      } else if (part.text) {
+        text = part.text;
+      }
+    }
 
     return new Response(JSON.stringify({ imageUrl, text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
