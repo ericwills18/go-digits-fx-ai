@@ -69,21 +69,28 @@ export function ChatMessage({ role, content, image }: ChatMessageProps) {
       .trim();
 
     const utterance = new SpeechSynthesisUtterance(textOnly);
-    utterance.rate = 0.9;
-    utterance.pitch = 0.95;
-    utterance.volume = 1;
+    utterance.rate = 0.82;
+    utterance.pitch = 0.88;
+    utterance.volume = 0.9;
 
-    // Try to find a voice that sounds natural — prefer English voices
+    // Try to find the most natural, calm voice — prefer English voices
     const voices = window.speechSynthesis.getVoices();
+    // Priority: Nigerian English > African English > UK English > any English
     const preferred = voices.find(
+      (v) => v.lang === "en-NG"
+    ) || voices.find(
+      (v) => v.lang.startsWith("en") && v.name.toLowerCase().includes("natural")
+    ) || voices.find(
       (v) => v.lang.startsWith("en") && v.name.toLowerCase().includes("female")
     ) || voices.find(
-      (v) => v.lang.startsWith("en-") && v.localService
+      (v) => v.lang.startsWith("en-GB") && v.localService
+    ) || voices.find(
+      (v) => v.lang.startsWith("en") && v.localService
     ) || voices.find(
       (v) => v.lang.startsWith("en")
     );
     if (preferred) utterance.voice = preferred;
-    utterance.lang = "en-NG"; // Nigerian English accent
+    utterance.lang = "en-NG";
 
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
