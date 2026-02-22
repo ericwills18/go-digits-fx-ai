@@ -10,8 +10,10 @@ serve(async (req) => {
 
   try {
     const { prompt } = await req.json();
-    const IMAGE_GEN_API_KEY = Deno.env.get("IMAGE_GEN_API_KEY");
-    if (!IMAGE_GEN_API_KEY) throw new Error("IMAGE_GEN_API_KEY is not configured");
+    const API_KEY_1 = Deno.env.get("IMAGE_GEN_API_KEY_1");
+    const API_KEY_2 = Deno.env.get("IMAGE_GEN_API_KEY_2");
+    if (!API_KEY_1 && !API_KEY_2) throw new Error("No image generation API keys configured");
+    const apiKeys = [API_KEY_1, API_KEY_2].filter(Boolean) as string[];
 
     const enhancedPrompt = `Generate a PHOTOREALISTIC professional forex trading chart that looks exactly like a screenshot from TradingView or MetaTrader 5. Requirements:
 - Dark navy/black background with grid lines
@@ -26,75 +28,77 @@ serve(async (req) => {
 
 Specific chart to generate: ${prompt}`;
 
-    // Try Gemini image generation with the dedicated API key
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${IMAGE_GEN_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: enhancedPrompt }] }],
-          generationConfig: {
-            responseModalities: ["TEXT", "IMAGE"],
-          },
-        }),
-      }
-    );
+    // Try each API key until one works
+    for (const apiKey of apiKeys) {
+      try {
+        // Try Gemini image generation
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: enhancedPrompt }] }],
+              generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
+            }),
+          }
+        );
 
-    if (!response.ok) {
-      const t = await response.text();
-      console.error("Gemini image API error:", response.status, t);
-
-      // Fallback: try Imagen model
-      const imagenResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${IMAGE_GEN_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            instances: [{ prompt: enhancedPrompt }],
-            parameters: { sampleCount: 1, aspectRatio: "16:9" },
-          }),
+        if (response.ok) {
+          const data = await response.json();
+          const parts = data.candidates?.[0]?.content?.parts || [];
+          let imageUrl = null;
+          let text = "";
+          for (const part of parts) {
+            if (part.inlineData) {
+              imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+            } else if (part.text) {
+              text = part.text;
+            }
+          }
+          if (imageUrl) {
+            return new Response(JSON.stringify({ imageUrl, text }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+        } else {
+          const t = await response.text();
+          console.error(`Gemini API error with key: ${response.status}`, t);
         }
-      );
 
-      if (!imagenResponse.ok) {
-        const t2 = await imagenResponse.text();
-        console.error("Imagen API error:", imagenResponse.status, t2);
-        return new Response(JSON.stringify({ error: "Failed to generate chart image" }), {
-          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+        // Fallback: try Imagen model with same key
+        const imagenResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              instances: [{ prompt: enhancedPrompt }],
+              parameters: { sampleCount: 1, aspectRatio: "16:9" },
+            }),
+          }
+        );
 
-      const imagenData = await imagenResponse.json();
-      const b64 = imagenData.predictions?.[0]?.bytesBase64Encoded;
-      if (b64) {
-        const imageUrl = `data:image/png;base64,${b64}`;
-        return new Response(JSON.stringify({ imageUrl, text: "" }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      return new Response(JSON.stringify({ error: "No image generated" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await response.json();
-    const parts = data.candidates?.[0]?.content?.parts || [];
-    let imageUrl = null;
-    let text = "";
-
-    for (const part of parts) {
-      if (part.inlineData) {
-        imageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-      } else if (part.text) {
-        text = part.text;
+        if (imagenResponse.ok) {
+          const imagenData = await imagenResponse.json();
+          const b64 = imagenData.predictions?.[0]?.bytesBase64Encoded;
+          if (b64) {
+            return new Response(JSON.stringify({ imageUrl: `data:image/png;base64,${b64}`, text: "" }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+        } else {
+          const t2 = await imagenResponse.text();
+          console.error(`Imagen API error with key: ${imagenResponse.status}`, t2);
+        }
+      } catch (keyErr) {
+        console.error("Key attempt failed:", keyErr);
+        continue;
       }
     }
 
-    return new Response(JSON.stringify({ imageUrl, text }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ error: "Failed to generate chart image with all available keys" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("generate-chart error:", e);
