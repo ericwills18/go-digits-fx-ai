@@ -9,7 +9,9 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 
-const STRATEGIES = [
+export const STRATEGIES = [
+  // Foundations
+  { id: "about-forex", label: "About Forex / What is Forex?", icon: "🌍", category: "Foundations" },
   // Core Strategies
   { id: "trend-following", label: "Trend Following & Pullbacks", icon: "📈", category: "Core" },
   { id: "breakout-retest", label: "Breakout & Retest", icon: "🔓", category: "Core" },

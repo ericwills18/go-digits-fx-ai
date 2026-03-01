@@ -4,14 +4,16 @@ import { Send, Paperclip, X, Settings2, Mic, MicOff } from "lucide-react";
 interface ChatInputProps {
   onSend: (message: string, image?: string) => void;
   disabled?: boolean;
+  inputRef?: React.RefObject<HTMLTextAreaElement>;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, inputRef }: ChatInputProps) {
   const [input, setInput] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const internalRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = inputRef || internalRef;
   const recognitionRef = useRef<any>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
