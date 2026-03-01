@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, TrendingUp, Shield, ChevronLeft, ChevronRight, LogOut, Trash2, ExternalLink } from "lucide-react";
+import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, TrendingUp, Shield, ChevronLeft, ChevronRight, LogOut, Trash2, ExternalLink, NotebookPen } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
-import { StrategySelector } from "@/components/StrategySelector";
+import { StrategySelector, STRATEGIES } from "@/components/StrategySelector";
 import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { streamChat, type Msg } from "@/lib/streamChat";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import aiAvatar from "@/assets/ai-avatar.jpeg";
 
 const WELCOME_MSG: Msg = {
   role: "assistant",
@@ -21,8 +22,9 @@ I'm your professional forex trading assistant with **full vision capabilities**.
 - 📐 **Strategy Guidance** — Learn and apply proven trading strategies  
 - 🎤 **Voice Input** — Click the mic icon to speak your questions
 - ⚖️ **Risk Management** — Position sizing, stop-loss placement
+- 📓 **Trading Journal** — Create and manage your trading journal
 
-**To get started:** Ask me anything about forex, or upload a chart screenshot for analysis.`,
+**To get started:** Select a strategy above, ask me anything about forex, or upload a chart screenshot for analysis.`,
 };
 
 const QUICK_ACTIONS = [
@@ -30,6 +32,7 @@ const QUICK_ACTIONS = [
   { label: "Risk management", icon: Shield, prompt: "Explain the key principles of risk management for forex trading" },
   { label: "Learn strategies", icon: BookOpen, prompt: "What are the most effective forex trading strategies for beginners?" },
   { label: "Market overview", icon: BarChart3, prompt: "Give me a current overview of major forex pairs and market conditions" },
+  { label: "Create Journal", icon: NotebookPen, prompt: "I want to create my trading journal. Please guide me through setting it up by asking me the relevant questions about my trades." },
 ];
 
 type Conversation = { id: string; title: string; created_at: string };
@@ -51,6 +54,7 @@ export default function Index() {
   const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem("go-digits-theme") || "navy");
   const [wallpaper, setWallpaper] = useState(() => localStorage.getItem("go-digits-wallpaper") || "");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasConversation = messages.length > 1;
 
   // Apply dark mode
@@ -116,6 +120,9 @@ export default function Index() {
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
+    // Focus input after sending
+    setTimeout(() => inputRef.current?.focus(), 100);
+
     let convoId = activeConvoId;
     if (!convoId && user) {
       const title = content.slice(0, 60) || "New Chat";
@@ -166,6 +173,8 @@ export default function Index() {
             });
           }
           loadConversations();
+          // Focus input after response completes
+          setTimeout(() => inputRef.current?.focus(), 100);
         },
       });
     } catch (e: any) {
@@ -175,11 +184,26 @@ export default function Index() {
     }
   };
 
+  // Auto-trigger message when strategy changes
+  const prevStrategyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (strategy && strategy !== prevStrategyRef.current && !isLoading) {
+      const strat = STRATEGIES.find((s) => s.id === strategy);
+      if (strat) {
+        const autoMessage = `Tell me about the "${strat.label}" strategy. Give me an overview, key concepts, and how to apply it in live trading. Generate a chart image to illustrate.`;
+        handleSend(autoMessage);
+      }
+    }
+    prevStrategyRef.current = strategy;
+  }, [strategy]);
+
   const handleReset = () => {
     setMessages([WELCOME_MSG]);
     setStrategy(null);
     setActiveConvoId(null);
   };
+
+  const selectedStrategy = STRATEGIES.find((s) => s.id === strategy);
 
   return (
     <div className="flex h-screen bg-background">
@@ -188,19 +212,27 @@ export default function Index() {
         className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-300 overflow-hidden flex-shrink-0 sidebar-glass flex flex-col relative z-10`}
       >
         <div className="p-4 flex items-center gap-2.5 border-b border-[hsl(var(--sidebar-border))]">
-          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-            <BarChart3 className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 rounded-full overflow-hidden border border-primary/30 ai-avatar-glow">
+            <img src={aiAvatar} alt="GO-DIGITS AI" className="w-full h-full object-cover" />
           </div>
           <span className="text-sm font-bold text-white tracking-tight">GO-DIGITS</span>
         </div>
 
-        <div className="p-3">
+        <div className="p-3 space-y-1.5">
           <button
             onClick={handleReset}
             className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[hsl(var(--sidebar-primary))] text-white text-xs font-medium hover:opacity-90 transition-opacity"
           >
             <MessageSquare className="w-3.5 h-3.5" />
             Start new chat
+          </button>
+          <button
+            onClick={() => handleSend("I want to create my trading journal. Please guide me through setting it up by asking me the relevant questions about my trades.")}
+            disabled={isLoading}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-[hsl(var(--sidebar-border))] text-white/70 text-xs font-medium hover:bg-white/5 hover:text-white transition-all disabled:opacity-50"
+          >
+            <NotebookPen className="w-3.5 h-3.5" />
+            Create Journal
           </button>
         </div>
 
@@ -279,13 +311,17 @@ export default function Index() {
         className="flex-1 flex flex-col min-w-0 relative z-10 wallpaper-bg"
         style={wallpaper ? { backgroundImage: `url(${wallpaper})` } : undefined}
       >
-        {/* Wallpaper overlay for readability */}
         {wallpaper && <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-0" />}
 
         {/* Top bar */}
         <header className="relative z-10 flex items-center justify-between px-5 py-3 border-b border-border bg-card/80 backdrop-blur-sm">
           <div className="flex items-center gap-2">
             <StrategySelector selected={strategy} onSelect={setStrategy} />
+            {selectedStrategy && (
+              <span className="text-xs text-primary font-medium px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20">
+                📖 Learning: {selectedStrategy.label}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1">
             <ThemeCustomizer
@@ -310,8 +346,8 @@ export default function Index() {
         <div ref={scrollRef} className="relative z-10 flex-1 overflow-y-auto">
           {!hasConversation ? (
             <div className="flex flex-col items-center justify-center h-full px-4 animate-fade-in-up">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
-                <Sparkles className="w-7 h-7 text-primary" />
+              <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-primary/30 ai-avatar-glow mb-6">
+                <img src={aiAvatar} alt="GO-DIGITS AI" className="w-full h-full object-cover" />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2 text-center">
                 How can I help you trade today?
@@ -349,7 +385,7 @@ export default function Index() {
 
         {/* Input */}
         <div className="relative z-10 max-w-3xl mx-auto w-full px-4 pb-4">
-          <ChatInput onSend={handleSend} disabled={isLoading} />
+          <ChatInput onSend={handleSend} disabled={isLoading} inputRef={inputRef} />
         </div>
       </main>
     </div>

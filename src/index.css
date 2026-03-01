@@ -221,3 +221,12 @@
   background-position: center;
   background-repeat: no-repeat;
 }
+
+/* AI Avatar glow animation */
+@keyframes avatar-glow {
+  0%, 100% { box-shadow: 0 0 8px 2px hsla(var(--primary), 0.3); }
+  50% { box-shadow: 0 0 16px 4px hsla(var(--primary), 0.6); }
+}
+.ai-avatar-glow {
+  animation: avatar-glow 3s ease-in-out infinite;
+}
