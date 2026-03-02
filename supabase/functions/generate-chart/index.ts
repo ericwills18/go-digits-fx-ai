@@ -10,10 +10,10 @@ serve(async (req) => {
 
   try {
     const { prompt } = await req.json();
+
+    const OPENROUTER_KEY = Deno.env.get("OPENROUTER_API_KEY");
     const API_KEY_1 = Deno.env.get("IMAGE_GEN_API_KEY_1");
     const API_KEY_2 = Deno.env.get("IMAGE_GEN_API_KEY_2");
-    if (!API_KEY_1 && !API_KEY_2) throw new Error("No image generation API keys configured");
-    const apiKeys = [API_KEY_1, API_KEY_2].filter(Boolean) as string[];
 
     const enhancedPrompt = `Generate a PHOTOREALISTIC professional forex trading chart that looks exactly like a screenshot from TradingView or MetaTrader 5. Requirements:
 - Dark navy/black background with grid lines
@@ -28,10 +28,54 @@ serve(async (req) => {
 
 Specific chart to generate: ${prompt}`;
 
-    // Try each API key until one works
+    // 1) Try OpenRouter first (preferred)
+    if (OPENROUTER_KEY) {
+      try {
+        const orResp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENROUTER_KEY}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://asphalt-fx.lovable.app",
+            "X-Title": "Asphalt FX Chart Generator",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.0-flash-exp:free",
+            messages: [{ role: "user", content: enhancedPrompt }],
+            response_format: { type: "image_url" },
+          }),
+        });
+
+        if (orResp.ok) {
+          const orData = await orResp.json();
+          // Try to extract image from various response shapes
+          const choice = orData.choices?.[0];
+          const imageUrl = choice?.message?.images?.[0]?.image_url?.url
+            || choice?.message?.content;
+          
+          // Check if we got a base64 image or a URL
+          if (imageUrl && (imageUrl.startsWith("data:image") || imageUrl.startsWith("http"))) {
+            return new Response(JSON.stringify({ imageUrl, text: "" }), {
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+        } else {
+          const t = await orResp.text();
+          console.error("OpenRouter error:", orResp.status, t);
+        }
+      } catch (orErr) {
+        console.error("OpenRouter attempt failed:", orErr);
+      }
+    }
+
+    // 2) Fallback to Gemini API keys
+    const apiKeys = [API_KEY_1, API_KEY_2].filter(Boolean) as string[];
+    if (apiKeys.length === 0 && !OPENROUTER_KEY) {
+      throw new Error("No image generation API keys configured");
+    }
+
     for (const apiKey of apiKeys) {
       try {
-        // Try Gemini image generation
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${apiKey}`,
           {
@@ -62,11 +106,10 @@ Specific chart to generate: ${prompt}`;
             });
           }
         } else {
-          const t = await response.text();
-          console.error(`Gemini API error with key: ${response.status}`, t);
+          console.error(`Gemini error: ${response.status}`, await response.text());
         }
 
-        // Fallback: try Imagen model with same key
+        // Fallback: Imagen
         const imagenResponse = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`,
           {
@@ -87,9 +130,6 @@ Specific chart to generate: ${prompt}`;
               headers: { ...corsHeaders, "Content-Type": "application/json" },
             });
           }
-        } else {
-          const t2 = await imagenResponse.text();
-          console.error(`Imagen API error with key: ${imagenResponse.status}`, t2);
         }
       } catch (keyErr) {
         console.error("Key attempt failed:", keyErr);
