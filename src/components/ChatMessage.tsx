@@ -125,7 +125,7 @@ export function ChatMessage({ role, content, image }: ChatMessageProps) {
   return (
     <div className="flex gap-3 mb-4">
       <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary/30 flex-shrink-0 mt-0.5 ai-avatar-glow">
-        <img src={aiAvatar} alt="GO-DIGITS AI" className="w-full h-full object-cover" />
+        <img src={aiAvatar} alt="Asphalt FX AI" className="w-full h-full object-cover" />
       </div>
       <div className="max-w-[85%] glass-card px-4 py-3 rounded-2xl rounded-bl-sm">
         <div className="chat-prose text-foreground">

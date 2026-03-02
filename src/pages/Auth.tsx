@@ -31,7 +31,7 @@ export default function Auth() {
   const features = [
     { icon: TrendingUp, label: "AI Chart Analysis", desc: "Upload charts for instant signals" },
     { icon: Shield, label: "Risk Management", desc: "Professional position sizing tools" },
-    { icon: BookOpen, label: "20 Strategies", desc: "Complete GO-DIGITS curriculum" },
+    { icon: BookOpen, label: "20 Strategies", desc: "Complete Asphalt FX curriculum" },
   ];
 
   return (
@@ -41,10 +41,10 @@ export default function Auth() {
         <div className="max-w-md">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary/30 ai-avatar-glow">
-              <img src={aiAvatar} alt="GO-DIGITS AI" className="w-full h-full object-cover" />
+             <img src={aiAvatar} alt="Asphalt FX AI" className="w-full h-full object-cover" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">GO-DIGITS</h1>
+              <h1 className="text-2xl font-bold text-white">Asphalt FX</h1>
               <p className="text-xs text-white/60">Forex AI Academy</p>
             </div>
           </div>
@@ -67,7 +67,7 @@ export default function Auth() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-white/40 mt-8">Founded by MR Olubori Paul</p>
+          <p className="text-xs text-white/40 mt-8">Founded by Williams Eric</p>
         </div>
       </div>
 
@@ -76,9 +76,9 @@ export default function Auth() {
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex flex-col items-center mb-8">
             <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-primary/30 ai-avatar-glow mb-3">
-              <img src={aiAvatar} alt="GO-DIGITS AI" className="w-full h-full object-cover" />
+              <img src={aiAvatar} alt="Asphalt FX AI" className="w-full h-full object-cover" />
             </div>
-            <span className="text-xl font-bold text-foreground">GO-DIGITS</span>
+            <span className="text-xl font-bold text-foreground">Asphalt FX</span>
           </div>
 
           <div className="glass-card rounded-2xl p-6">
@@ -128,7 +128,7 @@ export default function Auth() {
           </div>
 
           <p className="text-[10px] text-center text-muted-foreground mt-4">
-            Founded by MR Olubori Paul
+            Founded by Williams Eric
           </p>
         </div>
       </div>
