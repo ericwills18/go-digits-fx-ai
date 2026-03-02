@@ -3,7 +3,7 @@ import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, TrendingUp, Sh
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
-import { StrategySelector, STRATEGIES } from "@/components/StrategySelector";
+import { CourseSelector, StrategySelector, COURSES, STRATEGIES, ALL_ITEMS } from "@/components/StrategySelector";
 import { ThemeCustomizer } from "@/components/ThemeCustomizer";
 import { streamChat, type Msg } from "@/lib/streamChat";
 import { useAuth } from "@/hooks/useAuth";
@@ -49,12 +49,12 @@ export default function Index() {
   const [activeConvoId, setActiveConvoId] = useState<string | null>(null);
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("go-digits-dark") === "true";
+      return localStorage.getItem("asphalt-fx-dark") === "true";
     }
     return false;
   });
-  const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem("go-digits-theme") || "navy");
-  const [wallpaper, setWallpaper] = useState(() => localStorage.getItem("go-digits-wallpaper") || "");
+  const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem("asphalt-fx-theme") || "navy");
+  const [wallpaper, setWallpaper] = useState(() => localStorage.getItem("asphalt-fx-wallpaper") || "");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasConversation = messages.length > 1;
@@ -62,7 +62,7 @@ export default function Index() {
   // Apply dark mode
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem("go-digits-dark", String(isDark));
+    localStorage.setItem("asphalt-fx-dark", String(isDark));
   }, [isDark]);
 
   const handleThemeChange = (theme: { id: string; primary: string; sidebar: string; navy: string }) => {
@@ -74,12 +74,12 @@ export default function Index() {
     root.style.setProperty("--ring", theme.primary);
     root.style.setProperty("--glow", theme.primary);
     setCurrentTheme(theme.id);
-    localStorage.setItem("go-digits-theme", theme.id);
+    localStorage.setItem("asphalt-fx-theme", theme.id);
   };
 
   const handleWallpaperChange = (url: string) => {
     setWallpaper(url);
-    localStorage.setItem("go-digits-wallpaper", url);
+    localStorage.setItem("asphalt-fx-wallpaper", url);
   };
 
   // Load conversations
@@ -190,9 +190,9 @@ export default function Index() {
   const prevStrategyRef = useRef<string | null>(null);
   useEffect(() => {
     if (strategy && strategy !== prevStrategyRef.current && !isLoading) {
-      const strat = STRATEGIES.find((s) => s.id === strategy);
+      const strat = ALL_ITEMS.find((s) => s.id === strategy);
       if (strat) {
-        const autoMessage = `Tell me about the "${strat.label}" strategy. Give me an overview, key concepts, and how to apply it in live trading. Generate a chart image to illustrate.`;
+        const autoMessage = `Tell me about "${strat.label}". Give me an overview, key concepts, and how to apply it in live trading. Generate a chart image to illustrate.`;
         handleSend(autoMessage);
       }
     }
@@ -205,7 +205,7 @@ export default function Index() {
     setActiveConvoId(null);
   };
 
-  const selectedStrategy = STRATEGIES.find((s) => s.id === strategy);
+  const selectedStrategy = ALL_ITEMS.find((s) => s.id === strategy);
 
   return (
     <div className="flex h-screen bg-background">
@@ -303,6 +303,7 @@ export default function Index() {
         {/* Top bar */}
         <header className="relative z-10 flex items-center justify-between px-5 py-3 border-b border-border bg-card/80 backdrop-blur-sm">
           <div className="flex items-center gap-2">
+            <CourseSelector selected={strategy} onSelect={setStrategy} />
             <StrategySelector selected={strategy} onSelect={setStrategy} />
             {selectedStrategy && (
               <span className="text-xs text-primary font-medium px-2 py-0.5 rounded-md bg-primary/10 border border-primary/20">
