@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, TrendingUp, Shield, ChevronLeft, ChevronRight, LogOut, Trash2, NotebookPen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, TrendingUp, Shield, ChevronLeft, ChevronRight, LogOut, Trash2, NotebookPen, Gamepad2 } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
@@ -41,6 +42,7 @@ type Conversation = { id: string; title: string; created_at: string };
 
 export default function Index() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Msg[]>([WELCOME_MSG]);
   const [isLoading, setIsLoading] = useState(false);
   const [strategy, setStrategy] = useState<string | null>(null);
@@ -235,6 +237,13 @@ export default function Index() {
           >
             <NotebookPen className="w-3.5 h-3.5" />
             Create Journal
+          </button>
+          <button
+            onClick={() => navigate("/simulator")}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-primary/30 bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-all"
+          >
+            <Gamepad2 className="w-3.5 h-3.5" />
+            Trade Simulator
           </button>
         </div>
 
