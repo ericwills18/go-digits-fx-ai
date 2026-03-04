@@ -26,24 +26,24 @@ export function SimulatorChart({ candles, visibleCount, onCrosshairMove }: Props
     const chart = createChart(containerRef.current, {
       layout: {
         background: { color: "transparent" },
-        textColor: "hsl(220, 15%, 55%)",
+        textColor: "#7d8597",
         fontSize: 11,
       },
       grid: {
-        vertLines: { color: "hsla(220, 20%, 30%, 0.3)" },
-        horzLines: { color: "hsla(220, 20%, 30%, 0.3)" },
+        vertLines: { color: "rgba(45, 55, 75, 0.3)" },
+        horzLines: { color: "rgba(45, 55, 75, 0.3)" },
       },
       crosshair: {
         mode: 0,
-        vertLine: { color: "hsla(220, 70%, 55%, 0.4)", width: 1, style: 2 },
-        horzLine: { color: "hsla(220, 70%, 55%, 0.4)", width: 1, style: 2 },
+        vertLine: { color: "rgba(70, 120, 200, 0.4)", width: 1, style: 2 },
+        horzLine: { color: "rgba(70, 120, 200, 0.4)", width: 1, style: 2 },
       },
       rightPriceScale: {
-        borderColor: "hsla(220, 20%, 30%, 0.5)",
+        borderColor: "rgba(45, 55, 75, 0.5)",
         scaleMargins: { top: 0.1, bottom: 0.2 },
       },
       timeScale: {
-        borderColor: "hsla(220, 20%, 30%, 0.5)",
+        borderColor: "rgba(45, 55, 75, 0.5)",
         timeVisible: true,
         secondsVisible: false,
       },
@@ -51,12 +51,12 @@ export function SimulatorChart({ candles, visibleCount, onCrosshairMove }: Props
     });
 
     const candleSeries = chart.addCandlestickSeries({
-      upColor: "hsl(152, 60%, 38%)",
-      downColor: "hsl(0, 72%, 50%)",
-      borderUpColor: "hsl(152, 60%, 38%)",
-      borderDownColor: "hsl(0, 72%, 50%)",
-      wickUpColor: "hsl(152, 60%, 45%)",
-      wickDownColor: "hsl(0, 72%, 55%)",
+      upColor: "#2d9a5c",
+      downColor: "#d9304a",
+      borderUpColor: "#2d9a5c",
+      borderDownColor: "#d9304a",
+      wickUpColor: "#38b86b",
+      wickDownColor: "#e04560",
     });
 
     const volumeSeries = chart.addHistogramSeries({
@@ -123,7 +123,7 @@ export function SimulatorChart({ candles, visibleCount, onCrosshairMove }: Props
     const volumeData = visible.map((c) => ({
       time: c.time as Time,
       value: c.volume,
-      color: c.close >= c.open ? "hsla(152, 60%, 38%, 0.3)" : "hsla(0, 72%, 50%, 0.3)",
+      color: c.close >= c.open ? "rgba(45, 154, 92, 0.3)" : "rgba(217, 48, 74, 0.3)",
     }));
 
     seriesRef.current.setData(candleData);
