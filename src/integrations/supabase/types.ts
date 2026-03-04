@@ -73,6 +73,48 @@ export type Database = {
           },
         ]
       }
+      strategies: {
+        Row: {
+          ai_prompt_template: string | null
+          assets: string | null
+          checklist_steps: string[]
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          risk_rules: string[]
+          screenshot_requirements: string[]
+          timeframe: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_prompt_template?: string | null
+          assets?: string | null
+          checklist_steps?: string[]
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          risk_rules?: string[]
+          screenshot_requirements?: string[]
+          timeframe?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_prompt_template?: string | null
+          assets?: string | null
+          checklist_steps?: string[]
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          risk_rules?: string[]
+          screenshot_requirements?: string[]
+          timeframe?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
