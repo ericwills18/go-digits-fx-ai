@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-chart]
 verify_jwt = false
+
+[functions.chart-review]
+verify_jwt = false
