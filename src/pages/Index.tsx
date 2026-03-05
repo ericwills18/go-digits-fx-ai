@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, GraduationCap, Target, ChevronLeft, ChevronRight, LogOut, Trash2, ClipboardCheck } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
@@ -37,6 +38,7 @@ const QUICK_ACTIONS = [
 type Conversation = { id: string; title: string; created_at: string };
 
 export default function Index() {
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [messages, setMessages] = useState<Msg[]>([WELCOME_MSG]);
   const [isLoading, setIsLoading] = useState(false);
@@ -183,7 +185,7 @@ export default function Index() {
     if (strategy && strategy !== prevStrategyRef.current && !isLoading) {
       const strat = ALL_ITEMS.find((s) => s.id === strategy);
       if (strat) {
-        const autoMessage = `I've selected the course/strategy "${strat.label}". Please begin my onboarding: ask me about my familiarity with this topic, how much time I can dedicate, my preferred learning pace, and my goal for taking this course.`;
+        const autoMessage = `I've selected the course/strategy "${strat.label}". Please begin — you can ask me onboarding questions OR I can skip onboarding and jump straight into Module 1. Which would I prefer? (I'll answer in my next message.)`;
         handleSend(autoMessage);
       }
     }
@@ -220,9 +222,8 @@ export default function Index() {
             Start new lesson
           </button>
           <button
-            onClick={() => handleSend("Track My Progress — Show me my learning progress dashboard with all enrolled courses, current levels, completed modules, and overall percentage.")}
-            disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-[hsl(var(--sidebar-border))] text-white/70 text-xs font-medium hover:bg-white/5 hover:text-white transition-all disabled:opacity-50"
+            onClick={() => navigate("/progress")}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-[hsl(var(--sidebar-border))] text-white/70 text-xs font-medium hover:bg-white/5 hover:text-white transition-all"
           >
             <ClipboardCheck className="w-3.5 h-3.5" />
             Track My Progress
