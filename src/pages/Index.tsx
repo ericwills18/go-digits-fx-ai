@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, TrendingUp, Shield, ChevronLeft, ChevronRight, LogOut, Trash2, NotebookPen, Gamepad2, LineChart } from "lucide-react";
+import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, GraduationCap, Target, ChevronLeft, ChevronRight, LogOut, Trash2, ClipboardCheck } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
@@ -14,35 +13,31 @@ import aiAvatar from "@/assets/ai-avatar.jpeg";
 
 const WELCOME_MSG: Msg = {
   role: "assistant",
-  content: `Welcome to **Asphalt FX AI** 📊
+  content: `Welcome to **Asphalt FX Academy** 🎓
 
-I'm your professional forex trading assistant with **full vision capabilities**. I can:
+I'm your AI Learning Assistant — here to guide you through structured courses step-by-step, from **Beginner** to **Professional** mastery.
 
-- 📈 **Analyze Charts** — Upload a screenshot and I'll auto-read your trade details
-- 🎨 **Generate Chart Images** — Ask me to illustrate any setup
-- 📐 **Strategy Guidance** — Learn and apply proven trading strategies  
-- 🎤 **Voice Input** — Click the mic icon to speak your questions
-- ⚖️ **Risk Management** — Position sizing, stop-loss placement
-- 📓 **Trading Journal** — Upload a trade screenshot and I'll journal it for you
-- 🧮 **Lot Size Calculator** — Enter your capital and asset to get recommendations
+Here's how it works:
 
-**To get started:** Select a strategy above, ask me anything about forex, or upload a chart screenshot for analysis.`,
+1. 📚 **Select a Course** — Pick a course from the dropdown above
+2. 🎯 **Choose a Strategy** — Select your learning strategy
+3. 💬 **Learn Interactively** — I'll teach you module by module with exercises, checkpoints, and progress tracking
+4. 📊 **Track Progress** — Click "Track My Progress" anytime to see how far you've come
+
+**To get started:** Select a course above, and I'll begin your personalized onboarding!`,
 };
 
 const QUICK_ACTIONS = [
-  { label: "Analyze a chart", icon: TrendingUp, prompt: "I'd like to analyze a forex chart. What pair should I look at today?" },
-  { label: "Risk management", icon: Shield, prompt: "Explain the key principles of risk management for forex trading" },
-  { label: "Learn strategies", icon: BookOpen, prompt: "What are the most effective forex trading strategies for beginners?" },
-  { label: "Market overview", icon: BarChart3, prompt: "Give me a current overview of major forex pairs and market conditions" },
-  { label: "Create Journal", icon: NotebookPen, prompt: "I want to create my trading journal. Please guide me through setting it up by asking me the relevant questions about my trades." },
-  { label: "Lot Calculator", icon: BarChart3, prompt: "I want to calculate my lot size. Please ask me for my account capital, the asset I want to trade, and my stop-loss and take-profit levels so you can recommend the right lot size and profit per pip." },
+  { label: "Browse courses", icon: BookOpen, prompt: "Show me all available courses with a brief description of each so I can decide which one to start with." },
+  { label: "Track my progress", icon: ClipboardCheck, prompt: "Track My Progress — Show me my learning progress dashboard with all enrolled courses, current levels, completed modules, and overall percentage." },
+  { label: "Continue learning", icon: GraduationCap, prompt: "I want to continue where I left off. What's my current module and next task?" },
+  { label: "Learning strategies", icon: Target, prompt: "Explain the different learning strategies available and help me choose the best one for my goals." },
 ];
 
 type Conversation = { id: string; title: string; created_at: string };
 
 export default function Index() {
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
   const [messages, setMessages] = useState<Msg[]>([WELCOME_MSG]);
   const [isLoading, setIsLoading] = useState(false);
   const [strategy, setStrategy] = useState<string | null>(null);
@@ -61,7 +56,6 @@ export default function Index() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const hasConversation = messages.length > 1;
 
-  // Apply dark mode
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
     localStorage.setItem("asphalt-fx-dark", String(isDark));
@@ -84,7 +78,6 @@ export default function Index() {
     localStorage.setItem("asphalt-fx-wallpaper", url);
   };
 
-  // Load conversations
   const loadConversations = useCallback(async () => {
     if (!user) return;
     const { data } = await supabase
@@ -123,8 +116,6 @@ export default function Index() {
     const userMsg: Msg = { role: "user", content, image };
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
-
-    // Focus input after sending
     setTimeout(() => inputRef.current?.focus(), 100);
 
     let convoId = activeConvoId;
@@ -177,7 +168,6 @@ export default function Index() {
             });
           }
           loadConversations();
-          // Focus input after response completes
           setTimeout(() => inputRef.current?.focus(), 100);
         },
       });
@@ -188,13 +178,12 @@ export default function Index() {
     }
   };
 
-  // Auto-trigger message when strategy changes
   const prevStrategyRef = useRef<string | null>(null);
   useEffect(() => {
     if (strategy && strategy !== prevStrategyRef.current && !isLoading) {
       const strat = ALL_ITEMS.find((s) => s.id === strategy);
       if (strat) {
-        const autoMessage = `Tell me about "${strat.label}". Give me an overview, key concepts, and how to apply it in live trading. Generate a chart image to illustrate.`;
+        const autoMessage = `I've selected the course/strategy "${strat.label}". Please begin my onboarding: ask me about my familiarity with this topic, how much time I can dedicate, my preferred learning pace, and my goal for taking this course.`;
         handleSend(autoMessage);
       }
     }
@@ -217,9 +206,9 @@ export default function Index() {
       >
         <div className="p-4 flex items-center gap-2.5 border-b border-[hsl(var(--sidebar-border))]">
           <div className="w-8 h-8 rounded-full overflow-hidden border border-primary/30 ai-avatar-glow">
-            <img src={aiAvatar} alt="Asphalt FX AI" className="w-full h-full object-cover" />
+            <img src={aiAvatar} alt="Asphalt FX Academy" className="w-full h-full object-cover" />
           </div>
-          <span className="text-sm font-bold text-white tracking-tight">Asphalt FX</span>
+          <span className="text-sm font-bold text-white tracking-tight">Asphalt FX Academy</span>
         </div>
 
         <div className="p-3 space-y-1.5">
@@ -228,29 +217,15 @@ export default function Index() {
             className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-[hsl(var(--sidebar-primary))] text-white text-xs font-medium hover:opacity-90 transition-opacity"
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            Start new chat
+            Start new lesson
           </button>
           <button
-            onClick={() => handleSend("I want to create my trading journal. Please guide me through setting it up by asking me the relevant questions about my trades.")}
+            onClick={() => handleSend("Track My Progress — Show me my learning progress dashboard with all enrolled courses, current levels, completed modules, and overall percentage.")}
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-[hsl(var(--sidebar-border))] text-white/70 text-xs font-medium hover:bg-white/5 hover:text-white transition-all disabled:opacity-50"
           >
-            <NotebookPen className="w-3.5 h-3.5" />
-            Create Journal
-          </button>
-          <button
-            onClick={() => navigate("/simulator")}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-primary/30 bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-all"
-          >
-            <Gamepad2 className="w-3.5 h-3.5" />
-            Trade Simulator
-          </button>
-          <button
-            onClick={() => navigate("/chart")}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-primary/30 bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-all"
-          >
-            <LineChart className="w-3.5 h-3.5" />
-            Chart Analysis
+            <ClipboardCheck className="w-3.5 h-3.5" />
+            Track My Progress
           </button>
         </div>
 
@@ -278,7 +253,6 @@ export default function Index() {
           </div>
         </div>
 
-
         <div className="p-3 border-t border-[hsl(var(--sidebar-border))]">
           <p className="text-[9px] text-white/30 text-center mb-2">Founded by Williams Eric</p>
           <div className="flex items-center gap-2 px-2">
@@ -286,8 +260,8 @@ export default function Index() {
               {user?.email?.charAt(0).toUpperCase() || "U"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-white truncate">{user?.email?.split("@")[0] || "Trader"}</p>
-              <p className="text-[10px] text-white/40">Asphalt FX Pro</p>
+              <p className="text-xs text-white truncate">{user?.email?.split("@")[0] || "Learner"}</p>
+              <p className="text-[10px] text-white/40">Asphalt FX Student</p>
             </div>
             <button
               onClick={signOut}
@@ -351,13 +325,13 @@ export default function Index() {
           {!hasConversation ? (
             <div className="flex flex-col items-center justify-center h-full px-4 animate-fade-in-up">
               <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-primary/30 ai-avatar-glow mb-6">
-                <img src={aiAvatar} alt="Asphalt FX AI" className="w-full h-full object-cover" />
+                <img src={aiAvatar} alt="Asphalt FX Academy" className="w-full h-full object-cover" />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2 text-center">
-                How can I help you trade today?
+                Ready to learn? Let's begin.
               </h1>
               <p className="text-sm text-muted-foreground mb-8 text-center max-w-md">
-                Your AI-powered forex assistant — by Asphalt FX Academy
+                Your AI-powered learning assistant — by Asphalt FX Academy
               </p>
               <div className="flex flex-wrap justify-center gap-2 mb-8 max-w-xl">
                 {QUICK_ACTIONS.map((action) => (
