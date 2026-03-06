@@ -228,6 +228,20 @@ export default function Index() {
             <ClipboardCheck className="w-3.5 h-3.5" />
             Track My Progress
           </button>
+          <button
+            onClick={() => navigate("/journal")}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-[hsl(var(--sidebar-border))] text-white/70 text-xs font-medium hover:bg-white/5 hover:text-white transition-all"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            Trading Journal
+          </button>
+          <button
+            onClick={() => navigate("/strategies")}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-[hsl(var(--sidebar-border))] text-white/70 text-xs font-medium hover:bg-white/5 hover:text-white transition-all"
+          >
+            <BookMarked className="w-3.5 h-3.5" />
+            Strategy Library
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 pb-3">
