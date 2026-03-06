@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ProgressTracker from "./pages/ProgressTracker";
+import TradingJournal from "./pages/TradingJournal";
+import StrategyLibrary from "./pages/StrategyLibrary";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +44,8 @@ const App = () => (
           <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
           <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
           <Route path="/progress" element={<ProtectedRoute><ProgressTracker /></ProtectedRoute>} />
+          <Route path="/journal" element={<ProtectedRoute><TradingJournal /></ProtectedRoute>} />
+          <Route path="/strategies" element={<ProtectedRoute><StrategyLibrary /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
