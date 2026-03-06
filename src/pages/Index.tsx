@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, GraduationCap, Target, ChevronLeft, ChevronRight, LogOut, Trash2, ClipboardCheck } from "lucide-react";
+import { BarChart3, RotateCcw, Sparkles, MessageSquare, BookOpen, GraduationCap, Target, ChevronLeft, ChevronRight, LogOut, Trash2, ClipboardCheck, BookMarked, FileText } from "lucide-react";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
 import { TypingIndicator } from "@/components/TypingIndicator";
