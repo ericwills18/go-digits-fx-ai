@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ProgressTracker from "./pages/ProgressTracker";
+import TradingJournal from "./pages/TradingJournal";
+import StrategyLibrary from "./pages/StrategyLibrary";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
